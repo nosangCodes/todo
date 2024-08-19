@@ -4,7 +4,7 @@ import React from "react";
 type Props = {};
 
 export default function page({}: Props) {
-  return <div>Main Page
-    <Counter />
+  return <div>
+    Add Tasks
   </div>;
 }

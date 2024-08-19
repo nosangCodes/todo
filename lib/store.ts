@@ -3,6 +3,7 @@ import counterReducer from "@/featuires/counter/counter-slice";
 import modalReducer from "@/featuires/modal/modal-slice";
 import taskReducer from "@/featuires/task/task-slice";
 import projectReducer from "@/featuires/project/project-slice";
+import projectTasksReducer from "@/featuires/project/project-tasks-slice";
 
 export const makeStore = () => {
   return configureStore({
@@ -11,6 +12,7 @@ export const makeStore = () => {
       modal: modalReducer,
       task: taskReducer,
       project: projectReducer,
+      projectTasks: projectTasksReducer,
     },
   });
 };

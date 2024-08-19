@@ -1,5 +1,5 @@
 "use client";
-import { completeTask, Task } from "@/featuires/task/task-slice";
+import { completeTask } from "@/featuires/task/task-slice";
 import { useAppDispatch, useAppSelector } from "@/lib/redux-hooks";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -39,15 +39,14 @@ export function TaskItem(task: Task) {
   return (
     <div
       className={cn(
-        "cursor-pointer flex flex-row gap-x-2 p-2 flex-1   bg-slate-800 rounded-sm",
+        "cursor-pointer flex flex-row gap-x-2 p-2 flex-1 items-start  bg-slate-800 rounded-sm",
         priorityClasses[task?.priority],
         task.completed && "bg-green-700"
       )}
     >
       <button
-        className="mt-1"
+      className="!mt-[6px]"
         onClick={() => {
-          console.log("clicked");
           if (!task.completed) {
             dispatch(completeTask(task.id));
           }
@@ -62,8 +61,13 @@ export function TaskItem(task: Task) {
       <div className="flex flex-col">
         <p className="text-lg font-normal">{task.name}</p>
         <p className="text-sm font-medium text-muted-foreground">
-          {format(task.duedate, "PPP")}
+          {format(task?.dueDate, "PPP")}
         </p>
+        {task.assignedTo?.name && (
+          <p className="text-xs">
+            Asigned to: <span className="font-semibold text-sm">{task.assignedTo.name}</span>
+          </p>
+        )}
       </div>
     </div>
   );

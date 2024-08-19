@@ -1,16 +1,24 @@
 "use client";
-import { useAppSelector } from "@/lib/redux-hooks";
+import { fetchProjects } from "@/featuires/project/project-slice";
+import { useAppDispatch, useAppSelector } from "@/lib/redux-hooks";
 import { cn } from "@/lib/utils";
-import { Goal, Rows2 } from "lucide-react";
+import { Rows2 } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect } from "react";
 
 type Props = {
   className?: string;
 };
 
 export default function ProjectList({ className }: Props) {
-  const { projects } = useAppSelector((state) => state.project);
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    if (dispatch) {
+      dispatch(fetchProjects());
+    }
+  }, []);
+
+  const { projects, loading } = useAppSelector((state) => state.project);
   return (
     <ul className={cn(className)}>
       {projects?.map((project) => (
@@ -25,6 +33,11 @@ export default function ProjectList({ className }: Props) {
           </li>
         </Link>
       ))}
+      {loading && (
+        <li className="h-6 rounded-md px-2 py-1 animate-pulse w-full bg-slate-800">
+          <p className="text-xs font-light">Loading...</p>
+        </li>
+      )}
     </ul>
   );
 }

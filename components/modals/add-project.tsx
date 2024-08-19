@@ -22,7 +22,12 @@ import { useAppDispatch, useAppSelector } from "@/lib/redux-hooks";
 import { closeModal } from "@/featuires/modal/modal-slice";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { addNewProject } from "@/featuires/project/project-slice";
+import {
+  addNewProject,
+  fetchProjects,
+} from "@/featuires/project/project-slice";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 type Props = {};
 
 const formSchema = z.object({
@@ -44,19 +49,16 @@ export default function AddProjectModal({}: Props) {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    const projectFound = projects.some(
-      (project) => project.name === values.name
-    );
-    if (projectFound) {
-      form.setError("name", {
-        type: "value",
-        message: "Project name already in use",
-      });
-    } else {
-      dispatch(addNewProject(values));
+  const isLoading = form.formState.isSubmitting;
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      await axios.post("/api/project", values);
       dispatch(closeModal());
       form.reset();
+      dispatch(fetchProjects());
+    } catch (error) {
+      console.log("🚀 ~ onSubmit ~ error:", error);
     }
   };
 
@@ -89,7 +91,7 @@ export default function AddProjectModal({}: Props) {
             />
 
             <DialogFooter className="mt-4">
-              <Button>Create</Button>
+              <Button disabled={isLoading}>Create</Button>
             </DialogFooter>
           </form>
         </Form>

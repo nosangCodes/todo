@@ -7,6 +7,7 @@ import { openModal } from "@/featuires/modal/modal-slice";
 import { useAppDispatch } from "@/lib/redux-hooks";
 import Link from "next/link";
 import ProjectList from "./project-list";
+import UserCard from "./user-card";
 
 type Props = {
   className?: string;
@@ -33,7 +34,7 @@ export default function SideBar({ className }: Props) {
     <div
       className={cn(
         className,
-        `w-[260px] flex flex-col h-full px-2 py-4 dark:bg-zinc-900/40 text-zinc-300`
+        `w-[260px] flex flex-col h-full px-2 pb-2 pt-4 dark:bg-zinc-900/40 text-zinc-300`
       )}
     >
       <h1 className="text-2xl font-semibold">Todo</h1>
@@ -42,7 +43,7 @@ export default function SideBar({ className }: Props) {
         <li className="mb-0">
           <button
             onClick={() => {
-              dispatch(openModal("addTask"));
+              dispatch(openModal({type: "addTask"}));
             }}
             className="flex p-2 pl-0 pb-0  rounded-md transition-colors text-emerald-400 hover:text-emerald-300 flex-row w-full text-center text-sm font-semibold items-center gap-x-1"
           >
@@ -56,7 +57,10 @@ export default function SideBar({ className }: Props) {
         <li>
           <SideBarItem link="upcoming" name="Upcoming" />
         </li>
-        <Separator />
+        <li>
+          <SideBarItem link="invitations" name="Invitations" />
+        </li>
+        <Separator className="h-[0.3px]" />
         <li>
           <div className="flex items-center flex-row justify-between">
             <h3 className="text-sm font-semibold text-slate-300">
@@ -64,7 +68,7 @@ export default function SideBar({ className }: Props) {
             </h3>
             <button
               onClick={() => {
-                dispatch(openModal("addProject"));
+                dispatch(openModal({type: "addProject"}));
               }}
               className="group"
             >
@@ -74,6 +78,8 @@ export default function SideBar({ className }: Props) {
           <ProjectList className="ml-2 mt-3 flex flex-col gap-y-3" />
         </li>
       </ul>
+      <Separator className="my-2" />
+      <UserCard />
     </div>
   );
 }

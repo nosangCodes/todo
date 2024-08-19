@@ -1,6 +1,7 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import * as z from "zod";
+import axios from "axios";
 import {
   Dialog,
   DialogContent,
@@ -35,9 +36,12 @@ import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "../ui/calendar";
 import { format } from "date-fns";
-import { addTask } from "@/featuires/task/task-slice";
+import { addTask, fetchTasks } from "@/featuires/task/task-slice";
+import { useRouter } from "next/navigation";
+import { fetchProjectTasks } from "@/featuires/project/project-tasks-slice";
 
 type Props = {};
+
 const formSchema = z.object({
   name: z.string().min(1, {
     message: "Task name is required",
@@ -45,13 +49,14 @@ const formSchema = z.object({
   priority: z.enum(["1", "2", "3", "4"], {
     message: "Priority is required",
   }),
-  duedate: z.date({
+  dueDate: z.date({
     required_error: "A due date is required",
   }),
+  assignedToEmail: z.string().optional(),
   projectId: z.string().optional(),
 });
 
-export default function AddTaskModal({}: Props) {
+export default function AddTaskModal() {
   const { isOpen, type } = useAppSelector((state) => state.modal);
   const isModalOpen = isOpen && type === "addTask";
   const dispatch = useAppDispatch();
@@ -61,16 +66,24 @@ export default function AddTaskModal({}: Props) {
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    dispatch(
-      addTask({
+  const isLoading = form.formState.isSubmitting;
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      if (values.projectId === "none") delete values.projectId;
+      await axios.post("/api/task", {
         ...values,
-        completed: false,
-        duedate: values.duedate.toISOString(),
-      })
-    );
-    form.reset();
-    dispatch(closeModal());
+      });
+
+      dispatch(fetchTasks());
+      if (values.projectId) {
+        dispatch(fetchProjectTasks(values.projectId));
+      }
+      form.reset();
+      dispatch(closeModal());
+    } catch (error) {
+      console.log("🚀 ~ onSubmit ~ error:", error);
+    }
   };
 
   return (
@@ -90,7 +103,9 @@ export default function AddTaskModal({}: Props) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm">Task name <sup className="text-rose-600">*</sup></FormLabel>
+                  <FormLabel className="text-sm">
+                    Task name <sup className="text-rose-600">*</sup>
+                  </FormLabel>
                   <FormControl className="!mt-0.5">
                     <Input {...field} />
                   </FormControl>
@@ -103,7 +118,9 @@ export default function AddTaskModal({}: Props) {
               name="priority"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm">Priority <sup className="text-rose-600">*</sup></FormLabel>
+                  <FormLabel className="text-sm">
+                    Priority <sup className="text-rose-600">*</sup>
+                  </FormLabel>
                   <Select
                     name="priority"
                     onValueChange={field.onChange}
@@ -132,10 +149,12 @@ export default function AddTaskModal({}: Props) {
 
             <FormField
               control={form.control}
-              name="duedate"
+              name="dueDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col items-start">
-                  <FormLabel className="mt-1 text-sm">Due date <sup className="text-rose-600">*</sup></FormLabel>
+                  <FormLabel className="mt-1 text-sm">
+                    Due date <sup className="text-rose-600">*</sup>
+                  </FormLabel>
                   <Popover>
                     <PopoverTrigger asChild className="w-full text-left">
                       <FormControl className="!mt-0.5">
@@ -169,6 +188,24 @@ export default function AddTaskModal({}: Props) {
 
             <FormField
               control={form.control}
+              name="assignedToEmail"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm">Assign to</FormLabel>
+                  <FormControl className="!mt-0.5">
+                    <Input
+                      className="placeholder:text-muted-foreground"
+                      placeholder="john@example.com"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="projectId"
               render={({ field }) => (
                 <FormItem>
@@ -192,7 +229,7 @@ export default function AddTaskModal({}: Props) {
                             {project.name}
                           </SelectItem>
                         ))}
-                        <SelectItem value={"NOT_RELATED"}>None</SelectItem>
+                        <SelectItem value={"none"}>None</SelectItem>
                       </SelectGroup>
                     </SelectContent>
                   </Select>
@@ -200,7 +237,7 @@ export default function AddTaskModal({}: Props) {
               )}
             />
             <DialogFooter>
-              <Button>Submit</Button>
+              <Button disabled={isLoading}>Submit</Button>
             </DialogFooter>
           </form>
         </Form>

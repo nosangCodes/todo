@@ -1,20 +1,32 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import Tasks from "./tasks";
 import {
   completedTasks,
+  fetchTasks,
   incompleteTasks,
   pastDueDate,
 } from "@/featuires/task/task-slice";
-import { useAppSelector } from "@/lib/redux-hooks";
-import { Separator } from "./ui/separator";
+import { useAppDispatch, useAppSelector } from "@/lib/redux-hooks";
 
 type Props = {};
 
 export default function TodaysTasks({}: Props) {
+  const dispatch = useAppDispatch();
+  const { loading } = useAppSelector((state) => state.task);
+  useEffect(() => {
+    if (dispatch) {
+      dispatch(fetchTasks());
+    }
+  }, []);
+
   const completed = useAppSelector(completedTasks);
   const incomplete = useAppSelector(incompleteTasks);
   const past = useAppSelector(pastDueDate);
+
+  if (loading) {
+    return <h3>Loading...</h3>;
+  }
   return (
     <div className="flex flex-col gap-y-2 pr-2">
       <div>
