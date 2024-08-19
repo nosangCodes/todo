@@ -120,6 +120,21 @@ model Project {
 
   invitations ProjectInvitation[] @relation("invitedProject")
 
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members ProjectMember[]
+}
+
+model ProjectMember {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  
+  userId String @db.ObjectId
+  
+  projectId String @db.ObjectId
+  project Project @relation(fields: [projectId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -136,4 +151,27 @@ model ProjectInvitation {
   invitedByUser  User    @relation("invitedByUser", fields: [invitedByUserId], references: [id], onDelete: Cascade)
   invitedUser    User?   @relation("invitedUser", fields: [userId], references: [id], onDelete: Cascade)
   invitedProject Project @relation("invitedProject", fields: [projectId], references: [id], onDelete: Cascade)
+
+  projectInvitationResponse ProjectInvitationResponse?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProjectInvitationResponse {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  projectInvitationId String            @unique @db.ObjectId
+  projectInvitation   ProjectInvitation @relation(fields: [projectInvitationId], references: [id])
+
+  response InvitationResponse @default(NOT_RESPONDED)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum InvitationResponse {
+  ACCEPTED
+  DECLINED
+  NOT_RESPONDED
 }

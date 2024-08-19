@@ -1,6 +1,5 @@
 import currentUser from "@/lib/current-user";
 import prisma from "@/lib/prisma";
-import { User } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 export const POST = async (req: Request) => {
@@ -26,7 +25,7 @@ export const POST = async (req: Request) => {
               email,
             },
           });
-    
+
           return {
             email: email,
             id: user?.id ?? undefined,
@@ -34,17 +33,78 @@ export const POST = async (req: Request) => {
         })
       );
     }
+    // if user is invited but has not responded update data
+    const alreadyInvitedUsers = await prisma.projectInvitation.findMany({
+      where: {
+        projectId: body.projectId,
+        invitedEmail: {
+          in: usersInvited.map((user) => user.email),
+        },
+        projectInvitationResponse: {
+          response: {
+            in: ["ACCEPTED", "NOT_RESPONDED"],
+          },
+        },
+      },
+    });
+    console.log("🚀 ~ POST ~ alreadyInvitedUsers:", alreadyInvitedUsers);
 
-    const query = usersInvited.map(({ email, id }) => ({
-      invitedEmail: email,
-      userId: id,
-      projectId: body.projectId,
-      invitedByUserId: user.id,
-    }));
+    const invitedUsersMailsSet = new Set(
+      alreadyInvitedUsers.map((user) => user.invitedEmail)
+    );
+    console.log("🚀 ~ POST ~ invitedUsersMailsSet:", invitedUsersMailsSet);
+
+    const query = usersInvited
+      .map(({ email, id }) => {
+        if (invitedUsersMailsSet.has(email)) return;
+        return {
+          invitedEmail: email,
+          userId: id,
+          projectId: body.projectId,
+          invitedByUserId: user.id,
+        };
+      })
+      .filter((item) => item !== undefined);
+
+    console.log("🚀 ~ query ~ query:", query);
+
+    if (query.length <= 0) {
+      return NextResponse.json({ message: "No one to invite" });
+    }
 
     const inviteRes = await prisma.projectInvitation.createMany({
-      data: query
+      data: query,
     });
+
+    if (inviteRes.count > 0) {
+      // create response entry
+      const createdInvitations = await prisma.projectInvitation.findMany({
+        where: {
+          projectId: body.projectId,
+          invitedEmail: {
+            in: query.map((invitation) => invitation.invitedEmail),
+          },
+          projectInvitationResponse: null,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      console.log("🚀 ~ POST ~ createdInvitations:", createdInvitations);
+
+      const responseEntries = createdInvitations.map((inv) => ({
+        projectInvitationId: inv.id,
+      }));
+      console.log("🚀 ~ responseEntries ~ responseEntries:", responseEntries);
+
+      const responseResponse =
+        await prisma.projectInvitationResponse.createMany({
+          data: responseEntries,
+        });
+
+      console.log("🚀 ~ POST ~ responseResponse:", responseResponse);
+    }
 
     return NextResponse.json(inviteRes);
   } catch (error) {

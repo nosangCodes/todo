@@ -1,7 +1,9 @@
 "use client";
 import { cn } from "@/lib/utils";
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "./ui/button";
+import axios from "axios";
+import { InvitationResponse } from "@prisma/client";
 type Props = {
   invitations: Array<Invitation>;
 };
@@ -29,6 +31,19 @@ export function InvitationItem({
   invitedProject,
   className,
 }: InvitationProps) {
+  const [loading, setLoading] = useState(false);
+  const handleInvitation = async (response: InvitationResponse) => {
+    setLoading(true);
+    const res = await axios.patch("/api/project/invite-respond", {
+      projectInvitationId: id,
+      response,
+      projectId: invitedProject.id,
+    });
+
+    console.log("🚀 ~ handleInvitation ~ res:", res);
+    setLoading(false);
+  };
+
   return (
     <li
       className={cn(
@@ -43,12 +58,16 @@ export function InvitationItem({
       </p>
       <div className="actions flex flex-row gap-x-2 max-md:ml-auto">
         <Button
+          disabled={loading}
+          onClick={() => handleInvitation("ACCEPTED")}
           className="!text-xs transition-colors  hover:!bg-green-600 !bg-green-900 text-white"
           size={"sm"}
         >
           Accept
         </Button>
         <Button
+          disabled={loading}
+          onClick={() => handleInvitation("DECLINED")}
           className="!text-xs transition-colors  hover:!bg-red-600"
           size={"sm"}
           variant={"destructive"}

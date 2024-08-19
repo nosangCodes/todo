@@ -29,20 +29,24 @@ export const GET = async (req: Request) => {
                 id: true,
               },
             },
+            projectInvitationResponse: true,
           },
         },
       },
     });
 
-    const result = invitations?.projectInvitations.map((invitation) => ({
-      id: invitation.id,
-      invitedByUser: invitation?.invitedByUser,
-      invitedProject: invitation?.invitedProject,
-    }));
+    const result = invitations?.projectInvitations
+      .map((invitation) => ({
+        id: invitation.id,
+        invitedByUser: invitation?.invitedByUser,
+        invitedProject: invitation?.invitedProject,
+        response: invitation.projectInvitationResponse?.response,
+      }))
+      .filter((invitation) => invitation.response === "NOT_RESPONDED");
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error("ERROR_FETCHINGiNVITATION_LIST", error);
+    console.error("ERROR_FETCHING_INVITATION_LIST", error);
     return new NextResponse("INternal server error", { status: 500 });
   }
 };
