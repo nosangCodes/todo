@@ -35,26 +35,52 @@ export const POST = async (req: Request) => {
     if (!user) {
       return new NextResponse("Unauthorized", { status: 400 });
     }
+
     const data: {
       name: string;
       priority: string;
       dueDate: string;
       projectId?: string;
       assignedToEmail?: string;
+      memberId?: string;
       assignedToId?: string;
     } = await req.json();
 
-    if (data?.assignedToEmail) {
+    if (data?.memberId && data?.projectId) {
       const assignedUser = await prisma.user.findUnique({
         where: {
-          email: data.assignedToEmail,
+          id: data.memberId,
         },
       });
-      if (assignedUser?.id) {
-        data["assignedToId"] = assignedUser.id;
+
+      if (!assignedUser?.id) {
+        return NextResponse.json(
+          { error: "Member user not found" },
+          { status: 400 }
+        );
       }
+
+      // check if user is member of project
+      const isMemberOfProject = await prisma.projectMember.findFirst({
+        where: {
+          projectId: data.projectId,
+          userId: assignedUser.id,
+        },
+      });
+
+      console.log("🚀 ~ POST ~ isMemberOfProject:", isMemberOfProject);
+      if (!isMemberOfProject) {
+        return NextResponse.json(
+          { error: "user is not a member of project" },
+          { status: 400 }
+        );
+      }
+
+      data["assignedToId"] = assignedUser.id;
+      delete data.memberId;
     }
 
+    console.log("🚀 ~ create task POST ~ data:", data);
     const newTask = await prisma.task.create({
       data: { ...data, userId: user.id },
     });

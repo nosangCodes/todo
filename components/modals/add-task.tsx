@@ -37,7 +37,7 @@ import { cn } from "@/lib/utils";
 import { Calendar } from "../ui/calendar";
 import { format } from "date-fns";
 import { addTask, fetchTasks } from "@/featuires/task/task-slice";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { fetchProjectTasks } from "@/featuires/project/project-tasks-slice";
 import {
   clearProjectMembers,
@@ -63,16 +63,8 @@ const formSchema = z.object({
 
 export default function AddTaskModal() {
   const { isOpen, type } = useAppSelector((state) => state.modal);
-  // const { members, loading: membersLoading } = useAppSelector(
-  //   (state) => state.projectMembers
-  // );
-
-  // console.log("🚀 ~ AddTaskModal ~ membersLoading:", membersLoading)
- 
-  const isModalOpen = isOpen && type === "addTask";
-  const dispatch = useAppDispatch();
-  const { projects } = useAppSelector((state) => state.project);
-
+  const pathName = usePathname();
+  const projectPathName = pathName?.slice(1);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -80,43 +72,39 @@ export default function AddTaskModal() {
     },
   });
 
-  // const isProjectSelected =
-  //   Boolean(form.getValues("projectId")) &&
-  //   form.getValues("projectId") !== "none";
+  const watchProjectId = form.watch("projectId");
+  const { members, loading: membersLoading } = useAppSelector(
+    (state) => state.projectMembers
+  );
+
+  const isModalOpen = isOpen && type === "addTask";
+  const dispatch = useAppDispatch();
+  const { projects } = useAppSelector((state) => state.project);
 
   const isLoading = form.formState.isSubmitting;
 
-  // useEffect(() => {
-  //   const projectId = form.getValues("projectId");
-  //   console.log("🚀 ~ useEffect ~ projectId changed:", projectId)
-    
-  //   if (projectId && projectId !== "none") {
-  //     // fetch project members
-  //     dispatch(fetchProjectMembers({ projectId }));
-  //   }
-
-  //   return () => {
-  //     console.log("clearing...");
-  //     form.setValue("memberId", "none");
-  //     // dispatch(clearProjectMembers());
-  //   };
-  // }, [form]);
+  useEffect(() => {
+    form.setValue("memberId", "none");
+    if (watchProjectId && watchProjectId !== "none") {
+      dispatch(fetchProjectMembers({ projectId: watchProjectId }));
+    }
+  }, [watchProjectId]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       if (values.projectId === "none") delete values.projectId;
+      if (values.memberId === "none") delete values.projectId;
       await axios.post("/api/task", {
         ...values,
       });
 
       dispatch(fetchTasks());
-      if (values.projectId) {
+      if (values.projectId === projectPathName) {
         dispatch(fetchProjectTasks({ projectId: values.projectId }));
       }
       form.reset();
       dispatch(closeModal());
     } catch (error) {
-      console.log("🚀 ~ onSubmit ~ error:", error);
     }
   };
 
@@ -255,22 +243,22 @@ export default function AddTaskModal() {
               )}
             />
 
-            {/* {isProjectSelected && (
+            {watchProjectId && watchProjectId !== "none" && (
               <FormField
                 control={form.control}
                 name="memberId"
-                disabled={membersLoading || isLoading}
+                disabled={membersLoading || isLoading || members.length < 1}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm">
-                      {membersLoading
-                        ? "Assign to (Loading members...)"
-                        : "Assign to"}
-                    </FormLabel>
+                    <FormLabel className="text-sm">{"Assign to"}</FormLabel>
                     <Select
                       name="memberId"
                       onValueChange={field.onChange}
                       defaultValue={field.value}
+                      value={field.value}
+                      disabled={
+                        membersLoading || isLoading || members.length < 1
+                      }
                     >
                       <FormControl className="!mt-0.5">
                         <SelectTrigger
@@ -281,7 +269,9 @@ export default function AddTaskModal() {
                           <SelectValue
                             placeholder={
                               membersLoading
-                                ? "Loading Members"
+                                ? "Loading"
+                                : members.length < 1
+                                ? "No members"
                                 : "Select Member"
                             }
                           />
@@ -294,7 +284,13 @@ export default function AddTaskModal() {
                               {member.name}
                             </SelectItem>
                           ))}
-                          <SelectItem value={"none"}>None</SelectItem>
+                          <SelectItem value={"none"}>
+                            {membersLoading
+                              ? "Loading..."
+                              : members.length < 1
+                              ? "No members"
+                              : `Select Memebers (${members.length})`}
+                          </SelectItem>
                         </SelectGroup>
                       </SelectContent>
                     </Select>
@@ -302,7 +298,7 @@ export default function AddTaskModal() {
                   </FormItem>
                 )}
               />
-            )} */}
+            )}
 
             <DialogFooter>
               <Button disabled={isLoading}>Submit</Button>
