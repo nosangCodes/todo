@@ -9,7 +9,6 @@ export default async function Invitations({}: Props) {
   const res = await fetch(`${process.env.FRONTEND_URL}/api/project/invitation-list`, {
     cache: "no-cache",
     method: "GET",
-    headers: headers(),
   });
   const invitations: Array<Invitation> = await res.json();
 
