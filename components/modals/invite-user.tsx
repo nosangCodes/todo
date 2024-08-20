@@ -58,7 +58,6 @@ export default function InviteUserModal({}: Props) {
       }
     } catch (error) {
       form.setError("root", { message: "Something went wrong!" });
-      console.log("🚀 ~ onSubmit ~ error:", error);
     }
   };
 

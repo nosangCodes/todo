@@ -39,6 +39,10 @@ import { format } from "date-fns";
 import { addTask, fetchTasks } from "@/featuires/task/task-slice";
 import { useRouter } from "next/navigation";
 import { fetchProjectTasks } from "@/featuires/project/project-tasks-slice";
+import {
+  clearProjectMembers,
+  fetchProjectMembers,
+} from "@/featuires/project/project-members.slice";
 
 type Props = {};
 
@@ -54,19 +58,49 @@ const formSchema = z.object({
   }),
   assignedToEmail: z.string().optional(),
   projectId: z.string().optional(),
+  memberId: z.string().optional(),
 });
 
 export default function AddTaskModal() {
   const { isOpen, type } = useAppSelector((state) => state.modal);
+  // const { members, loading: membersLoading } = useAppSelector(
+  //   (state) => state.projectMembers
+  // );
+
+  // console.log("🚀 ~ AddTaskModal ~ membersLoading:", membersLoading)
+ 
   const isModalOpen = isOpen && type === "addTask";
   const dispatch = useAppDispatch();
   const { projects } = useAppSelector((state) => state.project);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      projectId: "none",
+    },
   });
 
+  // const isProjectSelected =
+  //   Boolean(form.getValues("projectId")) &&
+  //   form.getValues("projectId") !== "none";
+
   const isLoading = form.formState.isSubmitting;
+
+  // useEffect(() => {
+  //   const projectId = form.getValues("projectId");
+  //   console.log("🚀 ~ useEffect ~ projectId changed:", projectId)
+    
+  //   if (projectId && projectId !== "none") {
+  //     // fetch project members
+  //     dispatch(fetchProjectMembers({ projectId }));
+  //   }
+
+  //   return () => {
+  //     console.log("clearing...");
+  //     form.setValue("memberId", "none");
+  //     // dispatch(clearProjectMembers());
+  //   };
+  // }, [form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -77,7 +111,7 @@ export default function AddTaskModal() {
 
       dispatch(fetchTasks());
       if (values.projectId) {
-        dispatch(fetchProjectTasks(values.projectId));
+        dispatch(fetchProjectTasks({ projectId: values.projectId }));
       }
       form.reset();
       dispatch(closeModal());
@@ -85,6 +119,8 @@ export default function AddTaskModal() {
       console.log("🚀 ~ onSubmit ~ error:", error);
     }
   };
+
+  if (!isModalOpen) return null;
 
   return (
     <Dialog onOpenChange={() => dispatch(closeModal())} open={isModalOpen}>
@@ -188,30 +224,12 @@ export default function AddTaskModal() {
 
             <FormField
               control={form.control}
-              name="assignedToEmail"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Assign to</FormLabel>
-                  <FormControl className="!mt-0.5">
-                    <Input
-                      className="placeholder:text-muted-foreground"
-                      placeholder="john@example.com"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="projectId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm">Project</FormLabel>
                   <Select
-                    name="priority"
+                    name="projectId"
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
@@ -236,6 +254,56 @@ export default function AddTaskModal() {
                 </FormItem>
               )}
             />
+
+            {/* {isProjectSelected && (
+              <FormField
+                control={form.control}
+                name="memberId"
+                disabled={membersLoading || isLoading}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm">
+                      {membersLoading
+                        ? "Assign to (Loading members...)"
+                        : "Assign to"}
+                    </FormLabel>
+                    <Select
+                      name="memberId"
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl className="!mt-0.5">
+                        <SelectTrigger
+                          className={cn(
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          <SelectValue
+                            placeholder={
+                              membersLoading
+                                ? "Loading Members"
+                                : "Select Member"
+                            }
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectGroup>
+                          {members?.map((member) => (
+                            <SelectItem key={member.id} value={member.id}>
+                              {member.name}
+                            </SelectItem>
+                          ))}
+                          <SelectItem value={"none"}>None</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )} */}
+
             <DialogFooter>
               <Button disabled={isLoading}>Submit</Button>
             </DialogFooter>

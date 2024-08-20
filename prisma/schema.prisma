@@ -27,6 +27,8 @@ model User {
   projectsCreated    Project[]           @relation("creator")
   projectInvitations ProjectInvitation[] @relation("invitedUser")
   projectInvitedTo   ProjectInvitation[] @relation("invitedByUser")
+
+  projectMembers ProjectMember[]
 }
 
 model Account {
@@ -131,6 +133,7 @@ model ProjectMember {
   id   String @id @default(auto()) @map("_id") @db.ObjectId
   
   userId String @db.ObjectId
+  user User @relation(fields: [userId], references: [id])
   
   projectId String @db.ObjectId
   project Project @relation(fields: [projectId], references: [id])

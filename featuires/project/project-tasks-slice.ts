@@ -2,23 +2,29 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const initialState: {
-  projectTasks?: ProjectTaskRes;
+  projectTasks?: ProjectTaskRes | null;
   loading: Boolean;
 } = {
-  projectTasks: undefined,
-  loading: false,
+  projectTasks: null,
+  loading: true,
 };
 
 export const fetchProjectTasks = createAsyncThunk(
   "project-tasks/fetch",
-  async (projectId: string, { rejectWithValue }) => {
+  async (
+    { projectId, signal }: { projectId: string; signal?: AbortSignal },
+    { rejectWithValue }
+  ) => {
     try {
       const res: { data: ProjectTaskRes } = await axios.get(
-        `/api/task/${projectId}`
+        `/api/task/${projectId}`,
+        {
+          signal,
+        }
       );
       return res.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue({message: JSON.stringify(error)});
     }
   }
 );
@@ -26,7 +32,11 @@ export const fetchProjectTasks = createAsyncThunk(
 export const projectTasks = createSlice({
   name: "project-tasks",
   initialState,
-  reducers: {},
+  reducers: {
+    clearProjectTasks: (state) => {
+      state.projectTasks = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchProjectTasks.pending, (state) => {
@@ -36,10 +46,12 @@ export const projectTasks = createSlice({
         state.loading = false;
         state.projectTasks = action.payload;
       })
-      .addCase(fetchProjectTasks.rejected, (state) => {
-        state.loading = false;
+      .addCase(fetchProjectTasks.rejected, (state, action) => {
+        console.error(JSON.stringify(action))
       });
   },
 });
+
+export const { clearProjectTasks } = projectTasks.actions;
 
 export default projectTasks.reducer;

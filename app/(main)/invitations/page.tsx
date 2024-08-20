@@ -1,12 +1,13 @@
 import InvitationsList from "@/components/inviatatiotns-list";
 import { Separator } from "@/components/ui/separator";
 import { headers } from "next/headers";
-import React, { Suspense } from "react";
+import React from "react";
 
 type Props = {};
 
 export default async function Invitations({}: Props) {
   const res = await fetch("http://localhost:3000/api/project/invitation-list", {
+    cache: "no-cache",
     method: "GET",
     headers: headers(),
   });

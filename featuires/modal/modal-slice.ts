@@ -1,7 +1,12 @@
 import { AppDispatch } from "@/lib/store";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-export type ModalType = "addTask" | "editTask" | "addProject" | "inviteUser";
+export type ModalType =
+  | "addTask"
+  | "editTask"
+  | "addProject"
+  | "inviteUser"
+  | "projectMembers";
 
 type ModalData = {
   projectId?: string;

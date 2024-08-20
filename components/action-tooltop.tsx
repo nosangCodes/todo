@@ -26,9 +26,9 @@ export default function ActionTooltip({ children, label, side, align }: Props) {
     <TooltipProvider delayDuration={50}>
       <Tooltip>
         <TooltipTrigger>{children}</TooltipTrigger>
-        <TooltipContent align={align} side={side}>
+        <TooltipContent autoFocus={false} align={align} side={side}>
           <p className="font-semibold text-sm">
-            {label.toLowerCase()}
+            {label}
           </p>
         </TooltipContent>
       </Tooltip>

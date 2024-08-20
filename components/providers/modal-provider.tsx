@@ -4,6 +4,7 @@ import AddTaskModal from "../modals/add-task";
 import AddProjectModal from "../modals/add-project";
 import InviteUserModal from "../modals/invite-user";
 import InviteToProject from "../invite-to-project";
+import ProjectMembersList from "../modals/project-members-list";
 type Props = {};
 
 export default function ModalProvider({}: Props) {
@@ -18,6 +19,7 @@ export default function ModalProvider({}: Props) {
       <AddTaskModal />
       <AddProjectModal />
       <InviteUserModal />
+      <ProjectMembersList />
     </>
   );
 }

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Button } from "./ui/button";
 import axios from "axios";
 import { InvitationResponse } from "@prisma/client";
+import { useRouter } from "next/navigation";
 type Props = {
   invitations: Array<Invitation>;
 };
@@ -31,6 +32,7 @@ export function InvitationItem({
   invitedProject,
   className,
 }: InvitationProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const handleInvitation = async (response: InvitationResponse) => {
     setLoading(true);
@@ -39,8 +41,9 @@ export function InvitationItem({
       response,
       projectId: invitedProject.id,
     });
-
-    console.log("🚀 ~ handleInvitation ~ res:", res);
+    if (res.status === 200) {
+      router.refresh();
+    }
     setLoading(false);
   };
 

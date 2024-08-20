@@ -17,24 +17,20 @@ export const fetchProjects = createAsyncThunk(
       const res = await axios("/api/project");
       return res;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(JSON.stringify(error));
     }
   }
 );
-
-
 
 export const projectSlice = createSlice({
   name: "project",
   initialState,
   reducers: {
     addNewProject: (state, action: PayloadAction<{ name: string }>) => {
-      const { name } = action.payload;
-      const id = new Date().getTime().toString();
-      // state.projects.push({
-      //   name,
-      //   id,
-      // });
+
+    },
+    clearProjects: (state) => {
+      state.projects = [];
     },
   },
   extraReducers: (builder) => {
@@ -54,7 +50,7 @@ export const projectSlice = createSlice({
       })
       .addCase(fetchProjects.rejected, (state) => {
         state.loading = false;
-      })
+      });
   },
   selectors: {
     projectExist: (state, action: PayloadAction<string>) => {
@@ -66,6 +62,6 @@ export const projectSlice = createSlice({
   },
 });
 
-export const { addNewProject } = projectSlice.actions;
+export const { addNewProject, clearProjects } = projectSlice.actions;
 export const { projectExist } = projectSlice.selectors;
 export default projectSlice.reducer;

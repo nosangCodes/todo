@@ -1,5 +1,8 @@
 "use client";
-import { fetchProjectTasks } from "@/featuires/project/project-tasks-slice";
+import {
+  clearProjectTasks,
+  fetchProjectTasks,
+} from "@/featuires/project/project-tasks-slice";
 import { useAppDispatch, useAppSelector } from "@/lib/redux-hooks";
 import React, { useEffect } from "react";
 import Tasks from "./tasks";
@@ -9,18 +12,26 @@ type Props = {
 
 export default function ProjectTasks({ projectId }: Props) {
   const dispatch = useAppDispatch();
-  useEffect(() => {
-    if (dispatch) {
-      dispatch(fetchProjectTasks(projectId));
-    }
-  }, []);
-
   const { loading, projectTasks } = useAppSelector(
     (state) => state.projectTasks
   );
 
-  if(loading){
-    return <h3>Loading...</h3>
+  useEffect(() => {
+    if (dispatch) {
+      const controller = new AbortController();
+      const signal = controller.signal;
+
+      dispatch(fetchProjectTasks({ projectId, signal }));
+
+      return () => {
+          controller.abort(); // Cancels the fetch request if it’s still pending
+          dispatch(clearProjectTasks());
+      };
+    }
+  }, [projectId]);
+
+  if (loading) {
+    return <h3>Loading...</h3>;
   }
 
   return (
