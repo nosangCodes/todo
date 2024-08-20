@@ -92,8 +92,10 @@ export default function AddTaskModal() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      if (values.projectId === "none") delete values.projectId;
-      if (values.memberId === "none") delete values.projectId;
+      if (values.projectId === "none" || values.memberId === "none") {
+        delete values.projectId;
+        delete values.memberId;
+      }
       await axios.post("/api/task", {
         ...values,
       });
@@ -104,8 +106,7 @@ export default function AddTaskModal() {
       }
       form.reset();
       dispatch(closeModal());
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   if (!isModalOpen) return null;
