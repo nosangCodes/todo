@@ -9,10 +9,6 @@ export default function Invitations({}: Props) {
   const [invitations, setInvitations] = useState<Array<Invitation>>([]);
 
   useEffect(() => {
-    console.log(
-      "🚀 ~ useEffect ~ process.env.FRONTEND_URL:",
-      process.env.FRONTEND_URL
-    );
     const fetchInvitations = async () => {
       const res = await fetch(
         `/api/project/invitation-list`,

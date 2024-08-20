@@ -1,6 +1,7 @@
 "use client";
 import {
   clearProjects,
+  fetchCollabProjects,
   fetchProjects,
 } from "@/featuires/project/project-slice";
 import { useAppDispatch, useAppSelector } from "@/lib/redux-hooks";
@@ -12,23 +13,32 @@ import React, { useEffect } from "react";
 
 type Props = {
   className?: string;
+  collabProject?: boolean;
 };
 
-export default function ProjectList({ className }: Props) {
+export default function ProjectList({ className, collabProject }: Props) {
   const pathName = usePathname();
   const projectId = pathName?.slice(1);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (dispatch) {
-      dispatch(fetchProjects());
+      if (collabProject) {
+        dispatch(fetchCollabProjects());
+      } else {
+        dispatch(fetchProjects());
+      }
     }
-  }, []);
+  }, [collabProject]);
 
-  const { projects, loading } = useAppSelector((state) => state.project);
+  const { projects, loading, collabProjects } = useAppSelector(
+    (state) => state.project
+  );
+
+  const projectList = collabProject ? collabProjects : projects;
   return (
     <ul className={cn(className)}>
-      {projects?.map((project) => (
+      {projectList?.map((project) => (
         <Link href={project.id} key={project.id}>
           <li
             className={cn(

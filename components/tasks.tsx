@@ -45,7 +45,7 @@ export function TaskItem(task: Task) {
       )}
     >
       <button
-      className="!mt-[6px]"
+        className="!mt-[6px]"
         onClick={() => {
           if (!task.completed) {
             dispatch(completeTask(task.id));
@@ -65,7 +65,10 @@ export function TaskItem(task: Task) {
         </p>
         {task.assignedTo?.name && (
           <p className="text-xs">
-            Asigned to: <span className="font-semibold text-sm">{task.assignedTo.name}</span>
+            Asigned to:{" "}
+            <span className="font-semibold text-sm">
+              {task.assignedTo.name}
+            </span>
           </p>
         )}
       </div>

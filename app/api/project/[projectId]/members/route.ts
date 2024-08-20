@@ -16,6 +16,21 @@ export const GET = async (
       return new NextResponse("Bad request", { status: 401 });
     }
 
+    const projectCreator = await prisma.project.findUnique({
+      where: {
+        id: params.projectId,
+      },
+      select: {
+        createdBy: {
+          select: {
+            name: true,
+            email: true,
+            id: true,
+          },
+        },
+      },
+    });
+
     const result = await prisma.projectMember.findMany({
       where: {
         projectId: params.projectId,
@@ -33,9 +48,14 @@ export const GET = async (
 
     const members = result.map((member) => ({
       ...member?.user,
+      creator: false,
     }));
 
-    return NextResponse.json(members);
+    if (projectCreator?.createdBy.id) {
+      members.push({ ...projectCreator.createdBy, creator: true });
+    }
+
+    return NextResponse.json(members );
   } catch (error) {
     return new NextResponse("Internal server error.", { status: 500 });
   }

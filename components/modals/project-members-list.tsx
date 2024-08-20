@@ -9,6 +9,7 @@ import {
   fetchProjectMembers,
 } from "@/featuires/project/project-members.slice";
 import { Button } from "../ui/button";
+import { Crown } from "lucide-react";
 
 type Props = {};
 
@@ -49,12 +50,14 @@ export default function ProjectMembersList({}: Props) {
           <p className="animate-pulse">Loading...</p>
         ) : members.length < 1 ? (
           <div className="flex flex-col gap-y-1">
-            <p className="text-slate-500 text-sm font-semibold">No members available.</p>
+            <p className="text-slate-500 text-sm font-semibold">
+              No members available.
+            </p>
             <Button
               size={"sm"}
               variant={"secondary"}
               onClick={() => dispatch(openModal({ type: "inviteUser" }))}
-              >
+            >
               Invite members
             </Button>
           </div>
@@ -64,20 +67,20 @@ export default function ProjectMembersList({}: Props) {
               <ul className="flex flex-col gap-y-1">
                 {members?.map((member) => (
                   <li
-                  key={member.id}
-                    className="bg-slate-900 rounded-sm p-2"
-                    >
+                    key={member.id}
+                    className="bg-slate-900 rounded-sm p-2 flex flex-row justify-between items-center"
+                  >
                     <p className="text-sm">{member.name}</p>
+                    {member.creator && <Crown className="h-5 w-5" />}
                   </li>
                 ))}
-               
               </ul>
             </ScrollArea>
             <Button
               variant={"secondary"}
               size={"sm"}
               onClick={() => dispatch(openModal({ type: "inviteUser" }))}
-              >
+            >
               Invite members
             </Button>
           </>

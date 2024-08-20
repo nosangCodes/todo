@@ -4,9 +4,11 @@ import axios from "axios";
 
 const initialState: {
   projects: Array<Project>;
+  collabProjects: Array<Project>;
   loading: Boolean;
 } = {
   projects: [],
+  collabProjects: [],
   loading: false,
 };
 
@@ -21,14 +23,26 @@ export const fetchProjects = createAsyncThunk(
     }
   }
 );
+export const fetchCollabProjects = createAsyncThunk(
+  "collab-projects/fetch-all",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axios("/api/project/collab-projects");
+      if (res.status !== 200) {
+        return rejectWithValue({ error: "Something went wrong!" });
+      }
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(JSON.stringify(error));
+    }
+  }
+);
 
 export const projectSlice = createSlice({
   name: "project",
   initialState,
   reducers: {
-    addNewProject: (state, action: PayloadAction<{ name: string }>) => {
-
-    },
+    addNewProject: (state, action: PayloadAction<{ name: string }>) => {},
     clearProjects: (state) => {
       state.projects = [];
     },
@@ -49,6 +63,19 @@ export const projectSlice = createSlice({
         state.projects = data;
       })
       .addCase(fetchProjects.rejected, (state) => {
+        state.loading = false;
+      })
+      .addCase(fetchCollabProjects.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(
+        fetchCollabProjects.fulfilled,
+        (state, action: PayloadAction<Array<Project>>) => {
+          state.loading = false;
+          state.collabProjects = action.payload;
+        }
+      )
+      .addCase(fetchCollabProjects.rejected, (state) => {
         state.loading = false;
       });
   },

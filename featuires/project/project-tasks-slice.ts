@@ -1,12 +1,14 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import axios, { AxiosError } from "axios";
 
 const initialState: {
   projectTasks?: ProjectTaskRes | null;
   loading: Boolean;
+  error: string;
 } = {
   projectTasks: null,
   loading: true,
+  error: "",
 };
 
 export const fetchProjectTasks = createAsyncThunk(
@@ -24,7 +26,11 @@ export const fetchProjectTasks = createAsyncThunk(
       );
       return res.data;
     } catch (error) {
-      return rejectWithValue({message: JSON.stringify(error)});
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data?.error);
+      }
+      console.error("ERROR FETCHING PROJECT TASKS", error);
+      return rejectWithValue("Something went wrong!");
     }
   }
 );
@@ -47,7 +53,7 @@ export const projectTasks = createSlice({
         state.projectTasks = action.payload;
       })
       .addCase(fetchProjectTasks.rejected, (state, action) => {
-        console.error(JSON.stringify(action))
+        state.error = action.payload as string;
       });
   },
 });

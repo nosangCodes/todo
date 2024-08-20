@@ -12,7 +12,7 @@ type Props = {
 
 export default function ProjectTasks({ projectId }: Props) {
   const dispatch = useAppDispatch();
-  const { loading, projectTasks } = useAppSelector(
+  const { loading, projectTasks, error } = useAppSelector(
     (state) => state.projectTasks
   );
 
@@ -24,19 +24,23 @@ export default function ProjectTasks({ projectId }: Props) {
       dispatch(fetchProjectTasks({ projectId, signal }));
 
       return () => {
-          controller.abort(); // Cancels the fetch request if it’s still pending
-          dispatch(clearProjectTasks());
+        controller.abort(); // Cancels the fetch request if it’s still pending
+        dispatch(clearProjectTasks());
       };
     }
   }, [projectId]);
 
-  if (loading) {
-    return <h3>Loading...</h3>;
+  if (error) {
+    return (
+      <h5 className="text-red-500 text-muted-foreground text-base font-medium">
+        {error}
+      </h5>
+    );
   }
 
-  return (
-    <div>
-      <Tasks tasks={projectTasks?.tasks} />
-    </div>
-  );
+  if (loading) {
+    return <h3>Loading tasks...</h3>;
+  }
+
+  return <Tasks tasks={projectTasks?.tasks} />;
 }

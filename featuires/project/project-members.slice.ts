@@ -5,6 +5,7 @@ type MemberType = {
   name: string;
   id: string;
   email: string;
+  creator: boolean;
 };
 
 interface MembersType {
@@ -39,8 +40,8 @@ export const projectMembersSlice = createSlice({
   initialState,
   reducers: {
     clearProjectMembers: (state) => {
-      state.members = []
-    }
+      state.members = [];
+    },
   },
   extraReducers(builder) {
     builder
@@ -60,5 +61,5 @@ export const projectMembersSlice = createSlice({
   },
 });
 
-export const {clearProjectMembers} = projectMembersSlice.actions
+export const { clearProjectMembers } = projectMembersSlice.actions;
 export default projectMembersSlice.reducer;

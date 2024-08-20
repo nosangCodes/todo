@@ -15,9 +15,13 @@ export default function InvitationsList({ invitations }: Props) {
       className="flex flex-col gap-y-2 pr-2
     "
     >
-      {invitations?.map((invitation) => (
-        <InvitationItem key={invitation.id} {...invitation} />
-      ))}
+      {invitations?.length < 1 ? (
+        <li>No invitations</li>
+      ) : (
+        invitations?.map((invitation) => (
+          <InvitationItem key={invitation.id} {...invitation} />
+        ))
+      )}
     </ul>
   );
 }
@@ -41,8 +45,8 @@ export function InvitationItem({
       response,
       projectId: invitedProject.id,
     });
+    router.refresh();
     if (res.status === 200) {
-      router.refresh();
     }
     setLoading(false);
   };

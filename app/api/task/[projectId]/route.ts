@@ -9,8 +9,19 @@ export const GET = async (
   try {
     const user = await currentUser();
     if (!user) {
-      return new NextResponse("Unauthorized", { status: 400 });
+      return new NextResponse("Unauthorized", { status: 401 });
     }
+
+    // the user user trying to access should be creator or member
+    const isMember = await prisma.projectMember.findFirst({
+      where: {
+        projectId: params.projectId,
+        userId: user.id,
+      },
+      select: {
+        id: true,
+      },
+    });
 
     const project = await prisma.project.findUnique({
       where: {
@@ -39,6 +50,18 @@ export const GET = async (
     if (!project) {
       return new NextResponse("Project not found", { status: 404 });
     }
+
+    const isCreator = project?.userId === user.id;
+    if (!isMember && !isCreator) {
+      return NextResponse.json(
+        {
+          error:
+            "Access denied: You must be a member or the creator of the project.",
+        },
+        { status: 403 }
+      );
+    }
+
     return NextResponse.json(project);
   } catch (error) {
     console.error("ERROR_FETCHING_PROJECT", error);

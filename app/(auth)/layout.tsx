@@ -9,7 +9,6 @@ type Props = {
 
 export default async function AuthLayout({ children }: Props) {
   const session = await getServerSession(authOptions);
-  console.log("🚀 ~ AuthLayout ~ session:", session);
   if (session?.user) {
     return redirect("/");
   }
