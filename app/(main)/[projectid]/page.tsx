@@ -13,12 +13,16 @@ type Props = {
 };
 
 export default async function page({ params: { projectid } }: Props) {
+  console.log(
+    "🚀 ~ page ~ process.env.FRONTEND_URL:",
+    process.env.FRONTEND_URL
+  );
+  
   const res = await fetch(
     `${process.env.FRONTEND_URL}/api/project/${projectid}`,
     {
       cache: "no-cache",
       method: "GET",
-      headers: headers(),
     }
   );
   const project: Project = await res.json();
