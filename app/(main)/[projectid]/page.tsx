@@ -1,10 +1,10 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import ProjectTasks from "@/components/project-tasks";
 import { Project } from "@prisma/client";
 import { Separator } from "@/components/ui/separator";
 import InviteToProject from "@/components/invite-to-project";
 import ProjectMembersAction from "@/components/project-members-action";
-import { headers } from "next/headers";
 
 type Props = {
   params: {
@@ -12,25 +12,40 @@ type Props = {
   };
 };
 
-export default async function page({ params: { projectid } }: Props) {
-  console.log(
-    "🚀 ~ page ~ process.env.FRONTEND_URL:",
-    process.env.FRONTEND_URL
-  );
-  
-  const res = await fetch(
-    `${process.env.FRONTEND_URL}/api/project/${projectid}`,
-    {
-      cache: "no-cache",
-      method: "GET",
+export default function page({ params: { projectid } }: Props) {
+  const [projectDetails, setProjectDetails] = useState<Project | null>();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (projectid) {
+      setLoading(true);
+      const fetchProjectDetails = async () => {
+        try {
+          const res = await fetch(`/api/project/${projectid}`, {
+            cache: "no-cache",
+            method: "GET",
+          });
+          const project: Project = await res.json();
+          setProjectDetails(project);
+        } catch (error) {
+          console.error("ERROR FETCHING PROJECT DETAILS", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchProjectDetails();
     }
-  );
-  const project: Project = await res.json();
+    return () => {
+      setProjectDetails(null);
+    };
+  }, [projectid]);
 
   return (
     <section className="w-full pt-4 h-[calc(100vh-50px)]">
       <div className="flex flex-row justify-between">
-        <h2 className="font-semibold text-2xl">{project.name}</h2>
+        <h2 className="font-semibold text-2xl">
+          {loading ? "Loading..." : projectDetails?.name}
+        </h2>
         <div className="flex flex-row">
           <ProjectMembersAction projectId={projectid} />
           <InviteToProject projectId={projectid} />
