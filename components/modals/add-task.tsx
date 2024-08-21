@@ -100,9 +100,10 @@ export default function AddTaskModal() {
         ...values,
       });
 
-      dispatch(fetchTasks());
       if (values.projectId === projectPathName) {
         dispatch(fetchProjectTasks({ projectId: values.projectId }));
+      } else {
+        dispatch(fetchTasks({ type: projectPathName }));
       }
       form.reset();
       dispatch(closeModal());

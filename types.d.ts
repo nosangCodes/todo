@@ -17,6 +17,12 @@ interface Task {
   assignedTo: {
     name?: string;
   };
+  project: {
+    name?: string
+  }
+  createdBy: {
+    name?: string
+  }
 }
 
 interface Project {

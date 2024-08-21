@@ -2,20 +2,34 @@ import Tasks from "@/components/tasks";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const initialState: {
+interface TaskState {
   tasks?: Array<Task>;
+  today: Array<Task>;
+  upcoming: Array<Task>;
+  pastDueDate: Array<Task>;
   loading: Boolean;
-} = {
+}
+
+const initialState: TaskState = {
   tasks: [],
+  today: [],
   loading: false,
+  upcoming: [],
+  pastDueDate: [],
 };
 
 export const fetchTasks = createAsyncThunk(
   "task/fetch-all",
-  async (_, { rejectWithValue }) => {
+  async (
+    { type }: { type: "today" | "upcoming" | "past" | string },
+    { rejectWithValue }
+  ) => {
     try {
-      const res = await axios.get("/api/task");
-      return res;
+      const res = await axios.get(`/api/task?type=${type}`);
+      if (res.status === 200) {
+        return res.data;
+      }
+      return rejectWithValue({ message: "Something went wrong!" });
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -50,63 +64,27 @@ export const taskSlice = createSlice({
       .addCase(fetchTasks.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchTasks.fulfilled, (state, action) => {
-        state.loading = false;
-        const {
-          data,
-        }: {
-          data: Task[];
-        } = action.payload;
-        state.tasks = [...data];
-      })
+      .addCase(
+        fetchTasks.fulfilled,
+        (
+          state,
+          action: PayloadAction<{
+            today?: Array<Task>;
+            upcoming?: Array<Task>;
+            pastDueDate?: Array<Task>;
+          }>
+        ) => {
+          state.loading = false;
+          state.today = action.payload?.today ?? [];
+          state.upcoming = action.payload?.upcoming ?? [];
+          state.pastDueDate = action.payload?.pastDueDate ?? [];
+        }
+      )
       .addCase(fetchTasks.rejected, (state) => {
         state.loading = false;
       });
   },
   selectors: {
-    completedTasks: (state) =>
-      state.tasks?.filter((task) => {
-        const today = new Date();
-        const taskDate = new Date(task.dueDate);
-        today.setHours(0, 0, 0, 0);
-        taskDate.setHours(0, 0, 0, 0);
-
-        return (
-          task.completed &&
-          taskDate.getDate() === today.getDate() &&
-          taskDate.getFullYear() === today.getFullYear() &&
-          taskDate.getMonth() === today.getMonth()
-        );
-      }),
-    incompleteTasks: (state) =>
-      state.tasks?.filter((task) => {
-        const tomorrow = new Date();
-        const taskDate = new Date(task.dueDate);
-        const yesterday = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        yesterday.setDate(yesterday.getDate() - 1);
-
-        yesterday.setHours(0, 0, 0, 0);
-        tomorrow.setHours(0, 0, 0, 0);
-        taskDate.setHours(0, 0, 0, 0);
-        return !task.completed && taskDate < tomorrow && taskDate > yesterday;
-      }),
-    pastDueDate: (state) =>
-      state.tasks?.filter((task) => {
-        const today = new Date();
-        const taskDate = new Date(task.dueDate);
-        today.setHours(0, 0, 0, 0);
-        taskDate.setHours(0, 0, 0, 0);
-        return !task.completed && taskDate < today;
-      }),
-    upcomingTasks: (state) =>
-      state.tasks?.filter((task) => {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(0, 0, 0, 0);
-
-        return new Date(task.dueDate) >= tomorrow;
-      }),
     projectTasks: (state, action: PayloadAction<string>) => {
       return state.tasks?.filter((task) => task.projectId === action.payload);
     },
@@ -114,11 +92,5 @@ export const taskSlice = createSlice({
 });
 
 export const { addTask, completeTask } = taskSlice.actions;
-export const {
-  completedTasks,
-  incompleteTasks,
-  pastDueDate,
-  upcomingTasks,
-  projectTasks,
-} = taskSlice.selectors;
+export const { projectTasks } = taskSlice.selectors;
 export default taskSlice.reducer;

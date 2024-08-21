@@ -1,12 +1,169 @@
 import currentUser from "@/lib/current-user";
 import prisma from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextApiRequest } from "next";
+import { NextRequest, NextResponse } from "next/server";
 
-export const GET = async (req: Request) => {
+export const GET = async (req: NextRequest) => {
   try {
+    const type = req.nextUrl.searchParams.get("type");
+
     const user = await currentUser();
     if (!user) {
-      return new NextResponse("Unauthorized", { status: 400 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 400 });
+    }
+
+    if (!type) {
+      return NextResponse.json({ error: "Inavlid qyery" }, { status: 400 });
+    }
+
+    if (type === "today" || type === "upcoming") {
+      const todaysDate = new Date();
+      todaysDate.setHours(0, 0, 0, 0);
+      const tomorrowsDate = new Date();
+      tomorrowsDate.setHours(0, 0, 0, 0);
+      tomorrowsDate.setDate(tomorrowsDate.getDate() + 1);
+
+      const upcoming = await prisma.task.findMany({
+        take: type === "today" ? 5 : 15,
+        where: {
+          dueDate: {
+            gt: tomorrowsDate.toISOString(),
+          },
+          OR: [
+            {
+              userId: user.id,
+            },
+            {
+              assignedToId: user.id,
+            },
+          ],
+        },
+        orderBy: [
+          {
+            priority: "asc",
+          },
+          {
+            createdAt: "desc",
+          },
+        ],
+        include: {
+          assignedTo: {
+            select: {
+              name: true,
+            },
+          },
+          project: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      if (type === "today") {
+        const past = await prisma.task.findMany({
+          take: 5,
+          where: {
+            dueDate: {
+              lt: todaysDate.toISOString(),
+            },
+            OR: [
+              {
+                userId: user.id,
+              },
+              {
+                assignedToId: user.id,
+              },
+            ],
+          },
+          orderBy: [
+            {
+              priority: "asc",
+            },
+            {
+              createdAt: "desc",
+            },
+          ],
+          include: {
+            assignedTo: {
+              select: {
+                name: true,
+              },
+            },
+            project: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            createdBy: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        });
+
+        const today = await prisma.task.findMany({
+          take: 5,
+          where: {
+            dueDate: {
+              gte: todaysDate.toISOString(),
+              lte: tomorrowsDate.toISOString(),
+            },
+            OR: [
+              {
+                userId: user.id,
+              },
+              {
+                assignedToId: user.id,
+              },
+            ],
+          },
+          orderBy: [
+            {
+              priority: "asc",
+            },
+            {
+              createdAt: "desc",
+            },
+          ],
+          include: {
+            assignedTo: {
+              select: {
+                name: true,
+              },
+            },
+            project: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            createdBy: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        });
+        return NextResponse.json({
+          today,
+          upcoming,
+          pastDueDate: past,
+        });
+      } else if (type === "upcoming") {
+        return NextResponse.json({ upcoming });
+      }
     }
 
     const tasks = await prisma.task.findMany({

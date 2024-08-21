@@ -58,16 +58,32 @@ export function TaskItem(task: Task) {
           <Circle className="h-5 w-5 text-muted-foreground" />
         )}
       </button>
-      <div className="flex flex-col">
+      <div className="flex flex-1 flex-col">
         <p className="text-lg font-normal">{task.name}</p>
         <p className="text-sm font-medium text-muted-foreground">
           {format(task?.dueDate, "PPP")}
         </p>
+      </div>
+      <div className="ml-auto">
+        {task.project?.name && (
+          <p className="text-xs">
+            Project:{" "}
+            <span className="font-semibold text-sm">{task.project.name}</span>
+          </p>
+        )}
         {task.assignedTo?.name && (
           <p className="text-xs">
             Asigned to:{" "}
             <span className="font-semibold text-sm">
               {task.assignedTo.name}
+            </span>
+          </p>
+        )}
+        {task.createdBy?.name && (
+          <p className="text-xs">
+            Created by:{" "}
+            <span className="font-semibold text-sm">
+              {task.createdBy.name}
             </span>
           </p>
         )}
