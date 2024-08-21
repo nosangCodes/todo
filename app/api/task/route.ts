@@ -238,15 +238,18 @@ export const POST = async (req: Request) => {
     const dbDueDate = new Date();
     const dueDate = new Date(data.dueDate);
 
-    // Set time to midnight to avoid any time zone issues
-    dbDueDate.setHours(0, 0, 0, 0);
-
-    // Set the correct year, month, and date
-    dbDueDate.setFullYear(
-      dueDate.getFullYear(),
-      dueDate.getMonth(),
-      dueDate.getDate()
+    // Use UTC methods to avoid time zone issues
+    dbDueDate.setUTCFullYear(
+      dueDate.getUTCFullYear(),
+      dueDate.getUTCMonth(),
+      dueDate.getUTCDate()
     );
+
+    // Set time to midnight in UTC to avoid any time zone issues
+    dbDueDate.setUTCHours(0, 0, 0, 0);
+
+    console.log("🚀 ~ POST ~ dbDueDate:", dbDueDate);
+    
     const newTask = await prisma.task.create({
       data: {
         ...data,
