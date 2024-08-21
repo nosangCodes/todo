@@ -92,6 +92,8 @@ export default function AddTaskModal() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+
+
       if (values.projectId === "none" || values.memberId === "none") {
         delete values.projectId;
         delete values.memberId;

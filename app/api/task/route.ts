@@ -1,6 +1,5 @@
 import currentUser from "@/lib/current-user";
 import prisma from "@/lib/prisma";
-import { NextApiRequest } from "next";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (req: NextRequest) => {
@@ -27,7 +26,7 @@ export const GET = async (req: NextRequest) => {
         take: type === "today" ? 5 : 15,
         where: {
           dueDate: {
-            gt: tomorrowsDate.toISOString(),
+            gt: tomorrowsDate,
           },
           OR: [
             {
@@ -72,7 +71,7 @@ export const GET = async (req: NextRequest) => {
           take: 5,
           where: {
             dueDate: {
-              lt: todaysDate.toISOString(),
+              lt: todaysDate,
             },
             OR: [
               {
@@ -116,8 +115,8 @@ export const GET = async (req: NextRequest) => {
           take: 5,
           where: {
             dueDate: {
-              gte: todaysDate.toISOString(),
-              lte: tomorrowsDate.toISOString(),
+              gte: todaysDate,
+              lte: tomorrowsDate,
             },
             OR: [
               {
@@ -196,7 +195,7 @@ export const POST = async (req: Request) => {
     const data: {
       name: string;
       priority: string;
-      dueDate: string;
+      dueDate: Date;
       projectId?: string;
       assignedToEmail?: string;
       memberId?: string;
@@ -225,7 +224,6 @@ export const POST = async (req: Request) => {
         },
       });
 
-      console.log("🚀 ~ POST ~ isMemberOfProject:", isMemberOfProject);
       if (!isMemberOfProject) {
         return NextResponse.json(
           { error: "user is not a member of project" },
@@ -237,11 +235,23 @@ export const POST = async (req: Request) => {
       delete data.memberId;
     }
 
-    console.log("🚀 ~ create task POST ~ data:", data);
+    const dbDueDate = new Date();
+    const dueDate = new Date(data.dueDate);
+
+    dbDueDate.setFullYear(
+      dueDate.getFullYear(),
+      dueDate.getMonth(),
+      dueDate.getDate()
+    );
+
+    console.log("🚀 ~ POST ~ dbDueDate:", dbDueDate);
     const newTask = await prisma.task.create({
-      data: { ...data, userId: user.id },
+      data: {
+        ...data,
+        userId: user.id,
+        dueDate: dbDueDate,
+      },
     });
-    console.log("🚀 ~ POST ~ newTask:", newTask);
 
     return NextResponse.json(newTask);
   } catch (error) {
