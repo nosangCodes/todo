@@ -1,27 +1,32 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Tasks from "./tasks";
-import {
-  fetchTasks,
-} from "@/featuires/task/task-slice";
+import { fetchTasks } from "@/featuires/task/task-slice";
 import { useAppDispatch, useAppSelector } from "@/lib/redux-hooks";
 
 type Props = {};
 
 export default function TodaysTasks({}: Props) {
   const dispatch = useAppDispatch();
+  const [mounted, setMounted] = useState(false);
   const { loading, today, upcoming, pastDueDate } = useAppSelector(
     (state) => state.task
   );
   useEffect(() => {
+    setMounted(true);
     if (dispatch) {
       dispatch(fetchTasks({ type: "today" }));
     }
   }, []);
 
+  if (!mounted) {
+    return null;
+  }
+
   if (loading) {
     return <h3>Loading...</h3>;
   }
+
   return (
     <div className="flex flex-col gap-y-2 pr-2">
       <div>

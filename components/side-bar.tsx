@@ -70,40 +70,41 @@ export default function SideBar({ className }: Props) {
         ))}
       </ul>
       <Separator className="h-[0.3px]" />
-      <ScrollArea className="flex-1">
-        <ul className="mt-3 flex flex-col gap-y-2 first:mb-0">
-          <li>
-            <div className="flex items-center flex-row justify-between">
-              <h3 className="text-sm font-semibold text-slate-300">
-                My Projects
-              </h3>
-              <button
-                onClick={() => {
-                  dispatch(openModal({ type: "addProject" }));
-                }}
-                className="group rounded-full p=1 hover:bg-slate-800 mr-3"
-              >
-                <PlusIcon
-                  strokeWidth={2}
-                  className="group-hover:text-slate-100 transition-colors text-slate-500 h-4 w-4"
-                />
-              </button>
-            </div>
-            <ProjectList className="ml-2 mt-3 flex flex-col gap-y-3" />
-          </li>
-          <li>
-            <Separator />
-          </li>
-          <li>
-            <div className="flex items-center flex-row justify-between">
-              <h3 className="text-sm font-semibold text-slate-300">
-                Collab Projects
-              </h3>
-            </div>
-            <ProjectList collabProject={true} className="ml-2 mt-3 flex flex-col gap-y-3" />
-          </li>
-        </ul>
-      </ScrollArea>
+      <ul className="mt-3 flex flex-1 flex-col gap-y-2 first:mb-0">
+        <li>
+          <div className="flex items-center flex-row justify-between">
+            <h3 className="text-sm font-semibold text-slate-300">
+              My Projects
+            </h3>
+            <button
+              onClick={() => {
+                dispatch(openModal({ type: "addProject" }));
+              }}
+              className="group rounded-full p=1 hover:bg-slate-800 mr-3"
+            >
+              <PlusIcon
+                strokeWidth={2}
+                className="group-hover:text-slate-100 transition-colors text-slate-500 h-4 w-4"
+              />
+            </button>
+          </div>
+          <ProjectList className="ml-2 mt-3 flex flex-col gap-y-3" />
+        </li>
+        <li>
+          <Separator />
+        </li>
+        <li>
+          <div className="flex items-center flex-row justify-between">
+            <h3 className="text-sm font-semibold text-slate-300">
+              Collab Projects
+            </h3>
+          </div>
+          <ProjectList
+            collabProject={true}
+            className="ml-2 mt-3 flex flex-col gap-y-3"
+          />
+        </li>
+      </ul>
       <Separator className="my-2" />
       <UserCard />
     </div>

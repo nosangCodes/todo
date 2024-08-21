@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const GET = async (req: NextRequest) => {
   try {
     const type = req.nextUrl.searchParams.get("type");
+    const timezone = req.nextUrl.searchParams.get("timezone") as string;
 
     const user = await currentUser();
     if (!user) {
@@ -16,6 +17,7 @@ export const GET = async (req: NextRequest) => {
     }
 
     if (type === "today" || type === "upcoming") {
+
       const todaysDate = new Date();
       todaysDate.setHours(0, 0, 0, 0);
       const tomorrowsDate = new Date();
@@ -26,7 +28,7 @@ export const GET = async (req: NextRequest) => {
         take: type === "today" ? 5 : 15,
         where: {
           dueDate: {
-            gt: tomorrowsDate,
+            gt: tomorrowsDate.toISOString(),
           },
           OR: [
             {
@@ -71,7 +73,7 @@ export const GET = async (req: NextRequest) => {
           take: 5,
           where: {
             dueDate: {
-              lt: todaysDate,
+              lt: todaysDate.toISOString(),
             },
             OR: [
               {
@@ -115,8 +117,8 @@ export const GET = async (req: NextRequest) => {
           take: 5,
           where: {
             dueDate: {
-              gte: todaysDate,
-              lte: tomorrowsDate,
+              gte: todaysDate.toISOString(),
+              lte: tomorrowsDate.toISOString(),
             },
             OR: [
               {
@@ -235,26 +237,10 @@ export const POST = async (req: Request) => {
       delete data.memberId;
     }
 
-    const dbDueDate = new Date();
-    const dueDate = new Date(data.dueDate);
-
-    // Use UTC methods to avoid time zone issues
-    dbDueDate.setUTCFullYear(
-      dueDate.getUTCFullYear(),
-      dueDate.getUTCMonth(),
-      dueDate.getUTCDate()
-    );
-
-    // Set time to midnight in UTC to avoid any time zone issues
-    dbDueDate.setUTCHours(0, 0, 0, 0);
-
-    console.log("🚀 ~ POST ~ dbDueDate:", dbDueDate);
-    
     const newTask = await prisma.task.create({
       data: {
         ...data,
         userId: user.id,
-        dueDate: dbDueDate,
       },
     });
 
