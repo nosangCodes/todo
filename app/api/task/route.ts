@@ -5,8 +5,6 @@ import { NextRequest, NextResponse } from "next/server";
 export const GET = async (req: NextRequest) => {
   try {
     const type = req.nextUrl.searchParams.get("type");
-    const timezone = req.nextUrl.searchParams.get("timezone") as string;
-
     const user = await currentUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 400 });
@@ -28,7 +26,7 @@ export const GET = async (req: NextRequest) => {
         take: type === "today" ? 5 : 15,
         where: {
           dueDate: {
-            gt: tomorrowsDate.toISOString(),
+            gt: tomorrowsDate,
           },
           OR: [
             {
@@ -73,7 +71,7 @@ export const GET = async (req: NextRequest) => {
           take: 5,
           where: {
             dueDate: {
-              lt: todaysDate.toISOString(),
+              lt: todaysDate,
             },
             OR: [
               {
@@ -117,8 +115,8 @@ export const GET = async (req: NextRequest) => {
           take: 5,
           where: {
             dueDate: {
-              gte: todaysDate.toISOString(),
-              lte: tomorrowsDate.toISOString(),
+              gte: todaysDate,
+              lte: tomorrowsDate,
             },
             OR: [
               {
@@ -197,7 +195,7 @@ export const POST = async (req: Request) => {
     const data: {
       name: string;
       priority: string;
-      dueDate: Date;
+      dueDate: string;
       projectId?: string;
       assignedToEmail?: string;
       memberId?: string;

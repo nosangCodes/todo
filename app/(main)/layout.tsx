@@ -1,3 +1,4 @@
+import SideBarStyleProvider from "@/components/providers/side-bar-style-provider";
 import SideBar from "@/components/side-bar";
 import { authOptions } from "@/lib/auth-options";
 import { getServerSession } from "next-auth";
@@ -16,7 +17,9 @@ export default async function MainLayout({ children }: Props) {
   return (
     <section className="flex flex-row gap-x-2">
       <SideBar className="fixed left-0 inset-y-0" />
-      <div className="ml-[280px] flex-1 pr-4">{children}</div>
+      <SideBarStyleProvider>
+        <div >{children}</div>
+      </SideBarStyleProvider>
     </section>
   );
 }

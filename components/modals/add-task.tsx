@@ -56,6 +56,7 @@ const formSchema = z.object({
   dueDate: z.date({
     required_error: "A due date is required",
   }),
+  time: z.string().optional(),
   assignedToEmail: z.string().optional(),
   projectId: z.string().optional(),
   memberId: z.string().optional(),
@@ -69,6 +70,12 @@ export default function AddTaskModal() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       projectId: "none",
+      time: (() => {
+        const date = new Date();
+        const hours = date.getHours().toString().padStart(2, "0");
+        const mins = date.getMinutes().toString().padStart(2, "0");
+        return `${hours}:${mins}`;
+      })(),
     },
   });
 
@@ -91,19 +98,37 @@ export default function AddTaskModal() {
   }, [watchProjectId]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    console.log("🚀 ~ onSubmit ~ values:", values);
+    // Parse the dueDate string into a Date object
+    const dueDate = new Date(values.dueDate);
+
+    console.log("🚀 ~ onSubmit ~ dueDate:", dueDate);
+    // Extract hours and minutes from the time string
+    if (values.time) {
+      const [hours, minutes] = values.time.split(":").map(Number);
+      // Set the hours and minutes of the dueDate object
+      dueDate.setUTCHours(hours, minutes, 0, 0);
+      console.log("new Due date", dueDate);
+    }
+
+    const finData = {
+      ...values,
+      dueDate: dueDate.toISOString(),
+    };
+    delete finData.time;
 
     try {
-      if (values.projectId === "none" || values.memberId === "none") {
-        delete values.projectId;
-        delete values.memberId;
+      if (finData.projectId === "none" || finData.memberId === "none") {
+        delete finData.projectId;
+        delete finData.memberId;
       }
 
       await axios.post("/api/task", {
-        ...values,
+        ...finData,
       });
 
-      if (values.projectId === projectPathName) {
-        dispatch(fetchProjectTasks({ projectId: values.projectId }));
+      if (finData.projectId === projectPathName) {
+        dispatch(fetchProjectTasks({ projectId: finData.projectId }));
       } else {
         dispatch(fetchTasks({ type: projectPathName }));
       }
@@ -209,6 +234,20 @@ export default function AddTaskModal() {
                       />
                     </PopoverContent>
                   </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm">Time</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="time" />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

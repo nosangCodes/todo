@@ -61,7 +61,7 @@ export function TaskItem(task: Task) {
       <div className="flex flex-1 flex-col">
         <p className="text-lg font-normal">{task.name}</p>
         <p className="text-sm font-medium text-muted-foreground">
-          {format(task?.dueDate, "PPP")}
+          {format(task?.dueDate, "PPP, HH:mm:ss")}
         </p>
       </div>
       <div className="ml-auto">
