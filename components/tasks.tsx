@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from "@/lib/redux-hooks";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CheckCircle, Circle } from "lucide-react";
+// import { utcToZonedTime } from "date-fns-tz";
 import React from "react";
 type Props = {
   className?: string;
@@ -36,6 +37,15 @@ export function TaskItem(task: Task) {
     "3": "bg-[#e65358]",
     "4": "",
   };
+
+  const zonedDate = new Date(task.dueDate);
+
+  // Convert the UTC date to a zoned time (which is still UTC)
+  // const zonedDate = utcToZonedTime(utcDate, "UTC");
+
+  // Format the UTC date to a readable string
+  const formattedUtcTime = format(zonedDate, "yyyy-MM-dd HH:mm:ss");
+
   return (
     <div
       className={cn(
@@ -61,7 +71,7 @@ export function TaskItem(task: Task) {
       <div className="flex flex-1 flex-col">
         <p className="text-lg font-normal">{task.name}</p>
         <p className="text-sm font-medium text-muted-foreground">
-          {format(task?.dueDate, "PPP, HH:mm:ss")}
+          {formattedUtcTime}
         </p>
       </div>
       <div className="ml-auto">
@@ -82,9 +92,7 @@ export function TaskItem(task: Task) {
         {task.createdBy?.name && (
           <p className="text-xs">
             Created by:{" "}
-            <span className="font-semibold text-sm">
-              {task.createdBy.name}
-            </span>
+            <span className="font-semibold text-sm">{task.createdBy.name}</span>
           </p>
         )}
       </div>

@@ -107,8 +107,9 @@ export default function AddTaskModal() {
     if (values.time) {
       const [hours, minutes] = values.time.split(":").map(Number);
       // Set the hours and minutes of the dueDate object
-      dueDate.setUTCHours(hours, minutes, 0, 0);
+      dueDate.setHours(hours, minutes, 0, 0);
       console.log("new Due date", dueDate);
+      delete values.time;
     }
 
     const finData = {
