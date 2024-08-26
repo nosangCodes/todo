@@ -9,16 +9,6 @@ type Props = {
 
 export default function SideBarStyleProvider({ children }: Props) {
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    if (window.localStorage) {
-      const sideBarState = Boolean(
-        JSON.parse(window.localStorage.getItem("tasks-sidebar-state") as string)
-      );
-      dispatch(setSideBarState({ isOpen: sideBarState }));
-    }
-  }, []);
-
   return (
     <div className={cn(`flex-1 pr-4 pl-3 md:ml-[260px]`)}>
       {children}
