@@ -26,7 +26,7 @@ export default function MobileSideBar({ className }: Props) {
         </button>
       </SheetTrigger>
       <SheetClose />
-      <SheetContent className={cn(className, "w-fit p-1")}>
+      <SheetContent className={cn(className, "md:w-fit p-1")}>
         <SideBar />
       </SheetContent>
     </Sheet>

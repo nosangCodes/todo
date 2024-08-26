@@ -141,8 +141,8 @@ export default function AddTaskModal() {
   if (!isModalOpen) return null;
 
   return (
-    <Dialog onOpenChange={() => dispatch(closeModal())} open={isModalOpen}>
-      <DialogContent>
+    <Dialog  onOpenChange={() => dispatch(closeModal())} open={isModalOpen}>
+      <DialogContent className="max-md:max-w-xs">
         <DialogHeader>
           <DialogTitle>New task</DialogTitle>
         </DialogHeader>
