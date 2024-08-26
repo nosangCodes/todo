@@ -2,14 +2,13 @@
 import { cn } from "@/lib/utils";
 import React from "react";
 import { Separator } from "./ui/separator";
-import { Cross, DiamondPlus, PlusIcon } from "lucide-react";
+import { DiamondPlus, PlusIcon } from "lucide-react";
 import { openModal } from "@/featuires/modal/modal-slice";
-import { useAppDispatch, useAppSelector } from "@/lib/redux-hooks";
+import { useAppDispatch } from "@/lib/redux-hooks";
 import Link from "next/link";
 import ProjectList from "./project-list";
 import UserCard from "./user-card";
 import { ScrollArea } from "./ui/scroll-area";
-import { toggleSideBar } from "@/featuires/side.slice";
 
 type Props = {
   className?: string;
@@ -51,8 +50,7 @@ export default function SideBar({ className }: Props) {
   return (
     <div
       className={cn(
-        `flex flex-col h-full px-2 pb-2 pt-4 dark:bg-zinc-900/40 text-zinc-300`,
-
+        `flex flex-col md:w-[260px] h-full px-2 pb-2 pt-4 dark:bg-zinc-900/40 text-zinc-300`,
         className
       )}
     >
