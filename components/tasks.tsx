@@ -2,7 +2,7 @@
 import { completeTask } from "@/featuires/task/task-slice";
 import { useAppDispatch, useAppSelector } from "@/lib/redux-hooks";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, formatDistance, subDays } from "date-fns";
 import { CheckCircle, Circle } from "lucide-react";
 // import { utcToZonedTime } from "date-fns-tz";
 import React from "react";
@@ -44,8 +44,10 @@ export function TaskItem(task: Task) {
   // const zonedDate = utcToZonedTime(utcDate, "UTC");
 
   // Format the UTC date to a readable string
-  const formattedUtcTime = format(zonedDate, "yyyy-MM-dd HH:mm:ss");
-
+  const formattedUtcTime = format(zonedDate, "PPP hh:mm a");
+  const timeDistance = formatDistance(zonedDate, new Date(), {
+    addSuffix: true,
+  });
   return (
     <div
       className={cn(
@@ -72,6 +74,9 @@ export function TaskItem(task: Task) {
         <p className="text-lg font-normal">{task.name}</p>
         <p className="text-sm font-medium text-muted-foreground">
           {formattedUtcTime}
+        </p>
+        <p className="text-sm font-medium text-muted-foreground">
+          {timeDistance}
         </p>
       </div>
       <div className="ml-auto">

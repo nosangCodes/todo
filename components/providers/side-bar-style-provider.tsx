@@ -1,18 +1,26 @@
 "use client";
-import { useAppSelector } from "@/lib/redux-hooks";
+import { setSideBarState } from "@/featuires/side.slice";
+import { useAppDispatch, useAppSelector } from "@/lib/redux-hooks";
 import { cn } from "@/lib/utils";
-import React from "react";
+import React, { useEffect, useState } from "react";
 type Props = {
   children: React.ReactNode;
 };
 
 export default function SideBarStyleProvider({ children }: Props) {
-  const { width, isOpen } = useAppSelector((state) => state.sideBar);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (window.localStorage) {
+      const sideBarState = Boolean(
+        JSON.parse(window.localStorage.getItem("tasks-sidebar-state") as string)
+      );
+      dispatch(setSideBarState({ isOpen: sideBarState }));
+    }
+  }, []);
+
   return (
-    <div
-      className={cn("flex-1 pr-4", !isOpen && "pl-3")}
-      style={{ marginLeft: width }}
-    >
+    <div className={cn(`flex-1 pr-4 pl-3 md:ml-[260px]`)}>
       {children}
     </div>
   );

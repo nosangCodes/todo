@@ -246,7 +246,7 @@ export default function AddTaskModal() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm">Time</FormLabel>
-                  <FormControl>
+                  <FormControl className="!mt-0.5">
                     <Input {...field} type="time" />
                   </FormControl>
                   <FormMessage />

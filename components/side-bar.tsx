@@ -48,20 +48,23 @@ function SideBarItem({ name, link }: ItemProps) {
 export default function SideBar({ className }: Props) {
   const dispatch = useAppDispatch();
   const { isOpen, width } = useAppSelector((state) => state.sideBar);
+
   return (
     <div
       style={{ width }}
       className={cn(
-        className,
-        ` flex flex-col h-full px-2 pb-2 pt-4 dark:bg-zinc-900/40 text-zinc-300`,
-        !isOpen && "overflow-x-hidden"
+        `flex flex-col h-full px-2 pb-2 pt-4 dark:bg-zinc-900/40 text-zinc-300`,
+        !isOpen && "overflow-x-hidden",
+        className
       )}
     >
-      <div>
+      <div
+        className={cn(
+          " flex flex-row justify-between items-center",
+          !isOpen && "flex-col"
+        )}
+      >
         <h1 className="text-2xl font-semibold">Todo</h1>
-        <button onClick={() => dispatch(toggleSideBar())}>
-          <Cross />
-        </button>
       </div>
       <Separator className="my-2" />
       <button
