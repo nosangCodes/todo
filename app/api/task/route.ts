@@ -15,7 +15,6 @@ export const GET = async (req: NextRequest) => {
     }
 
     if (type === "today" || type === "upcoming") {
-
       const todaysDate = new Date();
       todaysDate.setHours(0, 0, 0, 0);
       const tomorrowsDate = new Date();
@@ -67,6 +66,22 @@ export const GET = async (req: NextRequest) => {
       });
 
       if (type === "today") {
+        const pastTasksCount = await prisma.task.count({
+          where: {
+            dueDate: {
+              lt: todaysDate,
+            },
+            OR: [
+              {
+                userId: user.id,
+              },
+              {
+                assignedToId: user.id,
+              },
+            ],
+          },
+        });
+
         const past = await prisma.task.findMany({
           take: 5,
           where: {
@@ -108,6 +123,23 @@ export const GET = async (req: NextRequest) => {
                 name: true,
               },
             },
+          },
+        });
+
+        const todaysTaskCount = await prisma.task.count({
+          where: {
+            dueDate: {
+              gte: todaysDate,
+              lte: tomorrowsDate,
+            },
+            OR: [
+              {
+                userId: user.id,
+              },
+              {
+                assignedToId: user.id,
+              },
+            ],
           },
         });
 
@@ -157,8 +189,10 @@ export const GET = async (req: NextRequest) => {
         });
         return NextResponse.json({
           today,
+          todaysTaskCount: todaysTaskCount - today.length,
           upcoming,
           pastDueDate: past,
+          pastTasksCount: pastTasksCount - past.length,
         });
       } else if (type === "upcoming") {
         return NextResponse.json({ upcoming });

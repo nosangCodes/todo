@@ -7,9 +7,13 @@ import { openModal } from "@/featuires/modal/modal-slice";
 
 type Props = {
   projectId: string;
+  allowedToInvite: boolean;
 };
 
-export default function ProjectMembersAction({ projectId }: Props) {
+export default function ProjectMembersAction({
+  projectId,
+  allowedToInvite,
+}: Props) {
   const dispatch = useAppDispatch();
   return (
     <ActionTooltip label="Project members">
@@ -20,6 +24,7 @@ export default function ProjectMembersAction({ projectId }: Props) {
               type: "projectMembers",
               data: {
                 projectId,
+                allowedToInvite
               },
             })
           );

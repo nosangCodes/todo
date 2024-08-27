@@ -33,6 +33,7 @@ export const GET = async (
     });
 
     const isCreator = project?.userId === user.id;
+
     if (!isMember && !isCreator) {
       return NextResponse.json(
         {
@@ -43,7 +44,7 @@ export const GET = async (
       );
     }
 
-    return NextResponse.json(project);
+    return NextResponse.json({ ...project, isCreator });
   } catch (error) {
     return new NextResponse("Internal server error.", { status: 500 });
   }

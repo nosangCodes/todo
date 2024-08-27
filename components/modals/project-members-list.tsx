@@ -10,6 +10,7 @@ import {
 } from "@/featuires/project/project-members.slice";
 import { Button } from "../ui/button";
 import { Crown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type Props = {};
 
@@ -17,7 +18,7 @@ export default function ProjectMembersList({}: Props) {
   const {
     isOpen,
     type,
-    data: { projectId },
+    data: { projectId, allowedToInvite },
   } = useAppSelector((state) => state.modal);
 
   const { members, loading: loadingMembers } = useAppSelector(
@@ -53,13 +54,15 @@ export default function ProjectMembersList({}: Props) {
             <p className="text-slate-500 text-sm font-semibold">
               No members available.
             </p>
-            <Button
-              size={"sm"}
-              variant={"secondary"}
-              onClick={() => dispatch(openModal({ type: "inviteUser" }))}
-            >
-              Invite members
-            </Button>
+            {allowedToInvite && (
+              <Button
+                size={"sm"}
+                variant={"secondary"}
+                onClick={() => dispatch(openModal({ type: "inviteUser" }))}
+              >
+                Invite members
+              </Button>
+            )}
           </div>
         ) : (
           <>
@@ -76,13 +79,15 @@ export default function ProjectMembersList({}: Props) {
                 ))}
               </ul>
             </ScrollArea>
-            <Button
-              variant={"secondary"}
-              size={"sm"}
-              onClick={() => dispatch(openModal({ type: "inviteUser" }))}
-            >
-              Invite members
-            </Button>
+            {allowedToInvite && (
+              <Button
+                variant={"secondary"}
+                size={"sm"}
+                onClick={() => dispatch(openModal({ type: "inviteUser" }))}
+              >
+                Invite members
+              </Button>
+            )}
           </>
         )}
       </DialogContent>

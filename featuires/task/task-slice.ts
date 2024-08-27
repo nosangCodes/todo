@@ -8,6 +8,8 @@ interface TaskState {
   upcoming: Array<Task>;
   pastDueDate: Array<Task>;
   loading: Boolean;
+  todaysTaskCount?: number;
+  pastTasksCount?: number;
 }
 
 const initialState: TaskState = {
@@ -16,6 +18,8 @@ const initialState: TaskState = {
   loading: false,
   upcoming: [],
   pastDueDate: [],
+  todaysTaskCount: 0,
+  pastTasksCount: 0,
 };
 
 export const fetchTasks = createAsyncThunk(
@@ -70,6 +74,8 @@ export const taskSlice = createSlice({
           state,
           action: PayloadAction<{
             today?: Array<Task>;
+            todaysTaskCount?: number;
+            pastTasksCount?: number;
             upcoming?: Array<Task>;
             pastDueDate?: Array<Task>;
           }>
@@ -78,6 +84,8 @@ export const taskSlice = createSlice({
           state.today = action.payload?.today ?? [];
           state.upcoming = action.payload?.upcoming ?? [];
           state.pastDueDate = action.payload?.pastDueDate ?? [];
+          state.todaysTaskCount = action.payload.todaysTaskCount
+          state.pastTasksCount = action.payload.pastTasksCount
         }
       )
       .addCase(fetchTasks.rejected, (state) => {

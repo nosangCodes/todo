@@ -9,9 +9,14 @@ type Props = {};
 export default function TodaysTasks({}: Props) {
   const dispatch = useAppDispatch();
   const [mounted, setMounted] = useState(false);
-  const { loading, today, upcoming, pastDueDate } = useAppSelector(
-    (state) => state.task
-  );
+  const {
+    loading,
+    today,
+    upcoming,
+    pastDueDate,
+    todaysTaskCount,
+    pastTasksCount,
+  } = useAppSelector((state) => state.task);
   useEffect(() => {
     setMounted(true);
     if (dispatch) {
@@ -32,12 +37,16 @@ export default function TodaysTasks({}: Props) {
       <div>
         <h2 className="text-base font-semibold text-stone-300">Due Today</h2>
         <Tasks className="mt-1" tasks={today} />
+        {todaysTaskCount !== 0 && (
+          <p  className="text-right mt-1">{todaysTaskCount} more</p>
+        )}
       </div>
       <div>
         <h2 className="text-base font-semibold text-stone-300">
           Past due date
         </h2>
         <Tasks className="mt-1" tasks={pastDueDate} />
+        {pastTasksCount !== 0 && <p className="text-right mt-1">{pastTasksCount} more</p>}
       </div>
       <div>
         <h2 className="text-base font-semibold text-stone-300">Upcoming</h2>

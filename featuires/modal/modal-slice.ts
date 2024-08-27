@@ -10,6 +10,7 @@ export type ModalType =
 
 type ModalData = {
   projectId?: string;
+  allowedToInvite?: boolean;
 };
 interface ModalStore {
   isOpen: boolean;
@@ -36,6 +37,7 @@ export const modalSlice = createSlice({
       if (data?.projectId) {
         state.data.projectId = data?.projectId;
       }
+      state.data.allowedToInvite = data?.allowedToInvite;
       state.isOpen = true;
     },
     closeModal: (state) => {
