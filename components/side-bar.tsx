@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import React from "react";
 import { Separator } from "./ui/separator";
-import { DiamondPlus, PlusIcon } from "lucide-react";
+import { ChevronRight, DiamondPlus, PlusIcon } from "lucide-react";
 import { openModal } from "@/featuires/modal/modal-slice";
 import { useAppDispatch } from "@/lib/redux-hooks";
 import Link from "next/link";
@@ -106,6 +106,7 @@ export default function SideBar({ className }: Props) {
             <Collapsible>
               <CollapsibleTrigger>
                 <div className="flex items-center flex-row justify-between">
+                  <ChevronRight />
                   <h3 className="text-sm font-semibold text-slate-300">
                     Collab Projects
                   </h3>
@@ -114,7 +115,7 @@ export default function SideBar({ className }: Props) {
               <CollapsibleContent>
                 <ProjectList
                   collabProject={true}
-                  className="ml-2 mt-3 flex flex-col gap-y-3"
+                  className="ml-2 mt-1 flex flex-col gap-y-3"
                 />
               </CollapsibleContent>
             </Collapsible>

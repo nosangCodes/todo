@@ -35,7 +35,7 @@ export default function ProjectMembersList({}: Props) {
     return () => {
       dispatch(clearProjectMembers());
     };
-  }, [projectId]);
+  }, [projectId, isModalOpen]);
 
   if (!projectId) return null;
 
