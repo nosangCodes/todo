@@ -36,6 +36,7 @@ export default function ProjectList({ className, collabProject }: Props) {
   );
 
   const projectList = collabProject ? collabProjects : projects;
+
   return (
     <ul className={cn(className)}>
       {projectList?.map((project) => (
@@ -55,7 +56,14 @@ export default function ProjectList({ className, collabProject }: Props) {
           </li>
         </Link>
       ))}
-      {loading && (
+      {!collabProject && loading === "projects" && (
+        <>
+          <li className="h-6 rounded-md px-2 py-1 animate-pulse w-full bg-slate-800">
+            <p className="text-xs font-light">Loading...</p>
+          </li>
+        </>
+      )}
+      {collabProject && loading === "collapProjects" && (
         <>
           <li className="h-6 rounded-md px-2 py-1 animate-pulse w-full bg-slate-800">
             <p className="text-xs font-light">Loading...</p>

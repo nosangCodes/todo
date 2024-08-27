@@ -25,11 +25,7 @@ export const fetchTasks = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      
-      const res = await axios.get(
-        `/api/task?type=${type}&timezone=${timeZone}`
-      );
+      const res = await axios.get(`/api/task?type=${type}`);
       if (res.status === 200) {
         return res.data;
       }

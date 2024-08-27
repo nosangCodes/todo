@@ -9,6 +9,11 @@ import Link from "next/link";
 import ProjectList from "./project-list";
 import UserCard from "./user-card";
 import { ScrollArea } from "./ui/scroll-area";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "./ui/collapsible";
 
 type Props = {
   className?: string;
@@ -98,15 +103,21 @@ export default function SideBar({ className }: Props) {
             <Separator />
           </li>
           <li>
-            <div className="flex items-center flex-row justify-between">
-              <h3 className="text-sm font-semibold text-slate-300">
-                Collab Projects
-              </h3>
-            </div>
-            <ProjectList
-              collabProject={true}
-              className="ml-2 mt-3 flex flex-col gap-y-3"
-            />
+            <Collapsible>
+              <CollapsibleTrigger>
+                <div className="flex items-center flex-row justify-between">
+                  <h3 className="text-sm font-semibold text-slate-300">
+                    Collab Projects
+                  </h3>
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <ProjectList
+                  collabProject={true}
+                  className="ml-2 mt-3 flex flex-col gap-y-3"
+                />
+              </CollapsibleContent>
+            </Collapsible>
           </li>
         </ul>
       </ScrollArea>

@@ -5,11 +5,11 @@ import axios from "axios";
 const initialState: {
   projects: Array<Project>;
   collabProjects: Array<Project>;
-  loading: Boolean;
+  loading?: "projects" | "collapProjects" | null;
 } = {
   projects: [],
   collabProjects: [],
-  loading: false,
+  loading: null,
 };
 
 export const fetchProjects = createAsyncThunk(
@@ -50,10 +50,10 @@ export const projectSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchProjects.pending, (state) => {
-        state.loading = true;
+        state.loading = "projects";
       })
       .addCase(fetchProjects.fulfilled, (state, action) => {
-        state.loading = false;
+        state.loading = null;
         const {
           data,
         }: {
@@ -63,20 +63,20 @@ export const projectSlice = createSlice({
         state.projects = data;
       })
       .addCase(fetchProjects.rejected, (state) => {
-        state.loading = false;
+        state.loading = null;
       })
       .addCase(fetchCollabProjects.pending, (state) => {
-        state.loading = true;
+        state.loading = "collapProjects";
       })
       .addCase(
         fetchCollabProjects.fulfilled,
         (state, action: PayloadAction<Array<Project>>) => {
-          state.loading = false;
+          state.loading = null;
           state.collabProjects = action.payload;
         }
       )
       .addCase(fetchCollabProjects.rejected, (state) => {
-        state.loading = false;
+        state.loading = null;
       });
   },
   selectors: {

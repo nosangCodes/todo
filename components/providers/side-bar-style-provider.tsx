@@ -10,7 +10,7 @@ type Props = {
 export default function SideBarStyleProvider({ children }: Props) {
   const dispatch = useAppDispatch();
   return (
-    <div className={cn(`flex-1 pr-4 pl-3 md:ml-[260px]`)}>
+    <div className={cn(`flex-1 md:pr-4 pl-3 md:ml-[260px]`)}>
       {children}
     </div>
   );
