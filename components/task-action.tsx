@@ -30,6 +30,7 @@ import axios from "axios";
 import { usePathname, useRouter } from "next/navigation";
 import { useAppDispatch } from "@/lib/redux-hooks";
 import { fetchTasks } from "@/featuires/task/task-slice";
+import { fetchProjectTasks } from "@/featuires/project/project-tasks-slice";
 
 type Props = {
   className?: string;
@@ -103,8 +104,13 @@ export default function TaskAction({ className, dueDate, status, id }: Props) {
 
     const res = await axios.patch(`/api/task/single/${id}`, data);
     console.log("UPDATE TASK RESPONSE", res.data);
-    if (res.status) {
-      dispatch(fetchTasks({ type: path }));
+    if (res.status === 200) {
+      console.log("🚀 ~ onSubmit ~ path:", path);
+      if (path === "today" || path === "upcoming") {
+        dispatch(fetchTasks({ type: path }));
+      } else if (path) {
+        dispatch(fetchProjectTasks({ projectId: path }));
+      }
     }
   };
   return (
